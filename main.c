@@ -5,8 +5,10 @@
 #define WIDGET_MARGIN 5
 
 char *command_string;
-const char program_name[] = "openFPGALoader";
-
+const char program_name[14] = "openFPGALoader";
+const char space[1] = " ";
+const char board_flag[2] = "-b";
+const char flash_flag[2] = "-f";
 g_autoptr(GFile) firmware_to_burn;
 
 typedef struct {
@@ -21,7 +23,7 @@ board_catalog fpga_names[3] ={
     .name = "tangnano4k"},
     {.number = 2,
     .name = "tangnano9k"},
-    };
+};
 
 static void call_program(GtkWidget *widget, gpointer data) {
     g_print("Calling Program...\n");
@@ -67,7 +69,6 @@ static void activate (GtkApplication *app, gpointer user_data) {
 
     window = gtk_application_window_new(app);
     gtk_window_set_title(GTK_WINDOW(window), "openFPGALoader GUI");
-    // gtk_window_set_default_size(GTK_WINDOW(window),WINDOW_WIDTH,WINDOW_HEIGHT);
     gtk_window_set_resizable (GTK_WINDOW(window),0);
 
     grid = gtk_grid_new();
@@ -150,8 +151,8 @@ int main (int argc, char **argv) {
     GtkApplication *app;
     int status;    
 
-    app = gtk_application_new("org.gtk.example", G_APPLICATION_FLAGS_NONE);
-    g_signal_connect(app, "activate", G_CALLBACK(activate), NULL);
+    app = gtk_application_new("org.gtk.example",G_APPLICATION_FLAGS_NONE);
+    g_signal_connect(app,"activate",G_CALLBACK(activate), NULL);
     status = g_application_run(G_APPLICATION(app), argc, argv);
     g_object_unref(app);
 
