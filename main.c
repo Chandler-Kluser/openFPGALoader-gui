@@ -8,13 +8,17 @@
 static void call_program(GtkWidget *widget, gpointer data) {
     g_print("Calling Program...\n");
     int status = system("lite-xl");
+    // escrevendo na RAM
+    // openFPGALoader -b <nome_da_placa> <nome_do_arquivo>
+    // escrevendo na flash
+    // openFPGALoader -b <nome_da_placa> -f <nome_do_arquivo>
 }
 
-static void call_dir_dialog(GtkWidget *widget, gpointer data, GtkWindow *window) {
-    GtkWidget *dialog;
-    GtkDialogFlags flags = GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT;
-    gtk_dialog_new_with_buttons ("Select File to Flash",window,flags,"First Button");
-    int status = system("lite-xl");
+static void call_dir_dialog(GtkWidget *widget, gpointer data) {
+    GtkFileChooserDialog *dialog;
+    GFile *file;
+    dialog = gtk_file_chooser_dialog_new("Open File",widget,GTK_FILE_CHOOSER_ACTION_OPEN,"Cancel",GTK_RESPONSE_CANCEL,"Open",GTK_RESPONSE_ACCEPT,NULL);
+    gtk_widget_show(dialog);
 }
 
 static void activate (GtkApplication *app, gpointer user_data) {
@@ -41,7 +45,7 @@ static void activate (GtkApplication *app, gpointer user_data) {
 
     label = gtk_label_new ("FPGA Model: ");
 
-    gtk_label_set_xalign(label,0);
+    gtk_label_set_xalign(GTK_LABEL(label),0);
     gtk_grid_attach(GTK_GRID (grid), label, 0, 0, 1, 1);
 
     ddown = gtk_combo_box_text_new();
@@ -60,7 +64,7 @@ static void activate (GtkApplication *app, gpointer user_data) {
 
     label = gtk_label_new ("Program Mode: ");
 
-    gtk_label_set_xalign(label,0);
+    gtk_label_set_xalign(GTK_LABEL(label),0);
     gtk_grid_attach(GTK_GRID (grid), label, 0, 1, 1, 1);
 
     ddown = gtk_combo_box_text_new();
@@ -78,14 +82,8 @@ static void activate (GtkApplication *app, gpointer user_data) {
 
     label = gtk_label_new ("Path to File: ");
 
-    gtk_label_set_xalign(label,0);
+    gtk_label_set_xalign(GTK_LABEL(label),0);
     gtk_grid_attach(GTK_GRID (grid), label, 0, 2, 1, 1);
-
-    // GtkTreePath *path;
-
-    // path = gtk_tree_path_new();
-    // gtk_tree_path_append_type (path, GTK_TYPE_WINDOW);
-    // gtk_tree_path_append_type (path, GTK_TYPE_BUTTON);
 
     button = gtk_button_new_with_label ("Path");
     g_signal_connect_swapped(button, "clicked", G_CALLBACK(call_dir_dialog), window);
