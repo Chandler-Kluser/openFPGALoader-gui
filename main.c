@@ -5,6 +5,8 @@
 #define WINDOW_WIDTH 400
 #define WINDOW_HEIGHT 300
 
+g_autoptr(GFile) firmware_to_burn;
+
 static void call_program(GtkWidget *widget, gpointer data) {
     g_print("Calling Program...\n");
     int status = system("lite-xl");
@@ -17,13 +19,12 @@ static void call_program(GtkWidget *widget, gpointer data) {
 static void on_save_response (GtkDialog *dialog,int response) {
     if (response == GTK_RESPONSE_ACCEPT) {
         GtkFileChooser *chooser = GTK_FILE_CHOOSER(dialog);
-        g_autoptr(GFile) file = gtk_file_chooser_get_file(chooser);
-        GtkApplication *app_main = gtk_window_get_application(GTK_WINDOW(dialog));
-        printf("Oe\n");
-        // return file;
+        firmware_to_burn = gtk_file_chooser_get_file(chooser);
+        printf("File Path Updated to: ");
+        printf(g_file_get_path(firmware_to_burn));
+        printf("\n");
     }
     gtk_window_destroy(GTK_WINDOW (dialog));
-    // return NULL;
 }
 
 static void call_dir_dialog(GtkWidget *widget, gpointer data) {
@@ -122,7 +123,6 @@ static void activate (GtkApplication *app, gpointer user_data) {
 int main (int argc, char **argv) {
     GtkApplication *app;
     int status;
-    g_autoptr(GFile) firmware_to_burn;
 
     app = gtk_application_new("org.gtk.example", G_APPLICATION_FLAGS_NONE);
     g_signal_connect(app, "activate", G_CALLBACK(activate), NULL);
