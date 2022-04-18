@@ -14,11 +14,23 @@ static void call_program(GtkWidget *widget, gpointer data) {
     // openFPGALoader -b <nome_da_placa> -f <nome_do_arquivo>
 }
 
+static void on_save_response (GtkDialog *dialog,int response) {
+    if (response == GTK_RESPONSE_ACCEPT) {
+        GtkFileChooser *chooser = GTK_FILE_CHOOSER(dialog);
+        g_autoptr(GFile) file = gtk_file_chooser_get_file(chooser);
+        GtkApplication *app_main = gtk_window_get_application(GTK_WINDOW(dialog));
+        printf("Oe\n");
+        // return file;
+    }
+    gtk_window_destroy(GTK_WINDOW (dialog));
+    // return NULL;
+}
+
 static void call_dir_dialog(GtkWidget *widget, gpointer data) {
-    GtkFileChooserDialog *dialog;
-    GFile *file;
-    dialog = gtk_file_chooser_dialog_new("Open File",widget,GTK_FILE_CHOOSER_ACTION_OPEN,"Cancel",GTK_RESPONSE_CANCEL,"Open",GTK_RESPONSE_ACCEPT,NULL);
+    GtkWidget *dialog;
+    dialog = gtk_file_chooser_dialog_new("Open File",GTK_WINDOW(widget),GTK_FILE_CHOOSER_ACTION_OPEN,"Cancel",GTK_RESPONSE_CANCEL,"Open",GTK_RESPONSE_ACCEPT,NULL);
     gtk_widget_show(dialog);
+    g_signal_connect (dialog,"response",G_CALLBACK(on_save_response),NULL);
 }
 
 static void activate (GtkApplication *app, gpointer user_data) {
@@ -103,7 +115,6 @@ static void activate (GtkApplication *app, gpointer user_data) {
     gtk_widget_set_margin_top(button,WIDGET_MARGIN);
     gtk_widget_set_margin_bottom(button,WINDOW_MARGIN);
     gtk_widget_set_margin_end(button,WINDOW_MARGIN);
-
     gtk_widget_show (window);
 
 }
@@ -111,6 +122,7 @@ static void activate (GtkApplication *app, gpointer user_data) {
 int main (int argc, char **argv) {
     GtkApplication *app;
     int status;
+    g_autoptr(GFile) firmware_to_burn;
 
     app = gtk_application_new("org.gtk.example", G_APPLICATION_FLAGS_NONE);
     g_signal_connect(app, "activate", G_CALLBACK(activate), NULL);
