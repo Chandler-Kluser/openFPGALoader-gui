@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "new": "c",
-        "typeinfo": "c"
+        "typeinfo": "c",
+        "stdlib.h": "c"
     }
 }

@@ -7,6 +7,20 @@
 
 g_autoptr(GFile) firmware_to_burn;
 
+typedef struct {
+    int number;
+    char name[11];
+} board_catalog;
+
+board_catalog fpga_names[3] ={
+    {.number = 0,
+    .name = "tangnano1k\0"},
+    {.number = 1,
+    .name = "tangnano4k\0"},
+    {.number = 2,
+    .name = "tangnano9k\0"},
+    };
+
 static void call_program(GtkWidget *widget, gpointer data) {
     g_print("Calling Program...\n");
     int status = system("lite-xl");
@@ -122,12 +136,14 @@ static void activate (GtkApplication *app, gpointer user_data) {
 
 int main (int argc, char **argv) {
     GtkApplication *app;
-    int status;
+    int status;    
 
     app = gtk_application_new("org.gtk.example", G_APPLICATION_FLAGS_NONE);
     g_signal_connect(app, "activate", G_CALLBACK(activate), NULL);
     status = g_application_run(G_APPLICATION(app), argc, argv);
     g_object_unref(app);
+    printf("%s", fpga_names[2].name);
+    printf("\n");
 
     return status;
 }
