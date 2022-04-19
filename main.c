@@ -4,11 +4,11 @@
 #define WINDOW_MARGIN 10
 #define WIDGET_MARGIN 5
 
-char *command_string;
-const char program_name[14] = "openFPGALoader";
-const char space[1] = " ";
-const char board_flag[2] = "-b";
-const char flash_flag[2] = "-f";
+char command_string[];
+const char program_name[15] = "openFPGALoader\0";
+const char space[2] = " \0";
+const char board_flag[3] = "-b\0";
+const char flash_flag[3] = "-f\0";
 g_autoptr(GFile) firmware_to_burn;
 
 typedef struct {
@@ -26,12 +26,25 @@ board_catalog fpga_names[3] ={
 };
 
 static void call_program(GtkWidget *widget, gpointer data) {
-    g_print("Calling Program...\n");
-    int status = system("lite-xl");
+    // ========================================================
+    //
     // escrevendo na RAM
     // openFPGALoader -b <nome_da_placa> <nome_do_arquivo>
     // escrevendo na flash
     // openFPGALoader -b <nome_da_placa> -f <nome_do_arquivo>
+    //
+    // ========================================================
+    //
+    // TO DO: Implement a way to concatenate the main command string with the board selected on the GUI
+    strcat(command_string,program_name);
+    strcat(command_string,space);
+    strcat(command_string,board_flag);
+    strcat(command_string,space);
+    // strcpy(command_string,""); // clear the string
+    printf("%s",command_string);
+    printf("\n");
+    int status = system("lite-xl");
+    
 }
 
 static void on_save_response(GtkDialog *dialog,int response) {
@@ -155,13 +168,6 @@ int main (int argc, char **argv) {
     g_signal_connect(app,"activate",G_CALLBACK(activate), NULL);
     status = g_application_run(G_APPLICATION(app), argc, argv);
     g_object_unref(app);
-
-    // TO DO: Implement a way to concatenate those strings
-    // printf("%s",fpga_names[0].name);
-    char *s1 = "abc";
-    char *s2 = "def\0";
-    char *s3 = strcat(s1,s2);
-    printf("%s",s3);
 
     return status;
 }
