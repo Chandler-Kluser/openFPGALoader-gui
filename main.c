@@ -1,44 +1,27 @@
 #include <gtk/gtk.h>
 #include <stdlib.h>
 #include <string.h>
+#include <boards.h>
+#include <texts.h>
+#include <stdio.h>
 #define WINDOW_MARGIN 10
 #define WIDGET_MARGIN 5
 
-const char program_name[15] = "openFPGALoader\0";
-const char space[2] = " \0";
-const char board_flag[3] = "-b\0";
-const char flash_flag[3] = "-f\0";
-const char quotation_mark[2] = "\"\0";
-g_autoptr(GFile) firmware_to_burn = NULL;
+char *path_name;
 GtkWidget *combobox_board;
 GtkWidget *combobox_flash;
 GtkWidget *path_entry_text;
-GtkEntryBuffer *abuff;
-
-typedef struct {
-    char name_combobox[20];
-    char name[20];
-} board_catalog;
-
-board_catalog fpga_names[3] = {
-    {.name_combobox = "Sipeed Tang Nano 1k\0",
-    .name = "tangnano1k\0"},
-    {.name_combobox = "Sipeed Tang Nano 4k\0",
-    .name = "tangnano4k\0"},
-    {.name_combobox = "Sipeed Tang Nano 9k\0",
-    .name = "tangnano9k\0"},
-};
 
 static void call_program(GtkWidget *widget, gpointer data) {
-    char *path = g_file_get_path(firmware_to_burn);
     char *buf;
+    path_name = gtk_entry_buffer_get_text(gtk_entry_get_buffer(path_entry_text));
     if (gtk_combo_box_get_active(combobox_board)==-1) {
         printf("No board choosen, pick a board to flash.\n");
     }
     else {
         int board_index = gtk_combo_box_get_active(combobox_board);
         if (gtk_combo_box_get_active(combobox_flash)==0) { // if flash is active
-            buf = calloc(strlen(program_name) + strlen(space) + strlen(board_flag) + strlen(space) + strlen(fpga_names[2].name) + strlen(space) + strlen(flash_flag) + strlen(space) + strlen(path) + 1, sizeof(char));
+            buf = calloc(strlen(program_name) + strlen(space) + strlen(board_flag) + strlen(space) + strlen(fpga_names[2].name) + strlen(space) + strlen(flash_flag) + strlen(space) + strlen(quotation_mark) + strlen(path_name) + strlen(quotation_mark) + 1, sizeof(char));
             strncpy(buf, program_name, strlen(program_name));
             strncat(buf, space, strlen(space));
             strncat(buf, board_flag, strlen(board_flag));
@@ -47,34 +30,31 @@ static void call_program(GtkWidget *widget, gpointer data) {
             strncat(buf, space, strlen(space));
             strncat(buf, flash_flag, strlen(flash_flag));
             strncat(buf, space, strlen(space));
-            strncat(buf, path, strlen(path));
+            strncat(buf, quotation_mark, strlen(quotation_mark));
+            strncat(buf, path_name, strlen(path_name));
+            strncat(buf, quotation_mark, strlen(quotation_mark));
         } else { // if flash to SRAM is active
-            buf = calloc(strlen(program_name) + strlen(space) + strlen(board_flag) + strlen(space) + strlen(fpga_names[2].name) + strlen(space) + strlen(path) + 1, sizeof(char));
+            buf = calloc(strlen(program_name) + strlen(space) + strlen(board_flag) + strlen(space) + strlen(fpga_names[2].name) + strlen(space) + strlen(quotation_mark) + strlen(path_name) + strlen(quotation_mark) + 1, sizeof(char));
             strncpy(buf, program_name, strlen(program_name));
             strncat(buf, space, strlen(space));
             strncat(buf, board_flag, strlen(board_flag));
             strncat(buf, space, strlen(space));
             strncat(buf, fpga_names[board_index].name, strlen(fpga_names[board_index].name));
             strncat(buf, space, strlen(space));
-            strncat(buf, path, strlen(path));
+            strncat(buf, quotation_mark, strlen(quotation_mark));
+            strncat(buf, path_name, strlen(path_name));
+            strncat(buf, quotation_mark, strlen(quotation_mark));
         }
         printf("buffer is: %s\n", buf);
         int status = system(buf);
-        free(buf);
     }
-    free(path);
 }
 
 static void on_save_response(GtkDialog *dialog, int response) {
     if (response == GTK_RESPONSE_ACCEPT) {
         GtkFileChooser *chooser = GTK_FILE_CHOOSER(dialog);
-        firmware_to_burn = gtk_file_chooser_get_file(chooser);
-        printf("File Path Updated to: %s\n",g_file_get_path(firmware_to_burn));
-        char *path = g_file_get_path(firmware_to_burn);
-        free(abuff);
-        abuff = gtk_entry_buffer_new(path,-1);
-        gtk_entry_set_buffer(path_entry_text,abuff);
-        gtk_text_buffer_set_text(abuff,path,-1);
+        path_name = g_file_get_path(gtk_file_chooser_get_file(chooser));
+        gtk_entry_buffer_set_text(gtk_entry_get_buffer(path_entry_text),path_name,-1);
     }
     gtk_window_destroy(GTK_WINDOW(dialog));
 }
@@ -112,9 +92,11 @@ static void activate (GtkApplication *app, gpointer user_data) {
     gtk_grid_attach(GTK_GRID (grid), label, 0, 0, 1, 1);
 
     combobox_board = gtk_combo_box_text_new();
-    gtk_combo_box_text_append(GTK_COMBO_BOX_TEXT(combobox_board), "0", fpga_names[0].name_combobox);
-    gtk_combo_box_text_append(GTK_COMBO_BOX_TEXT(combobox_board), "1", fpga_names[1].name_combobox);
-    gtk_combo_box_text_append(GTK_COMBO_BOX_TEXT(combobox_board), "2", fpga_names[2].name_combobox);
+    char buffer_index[200];
+    for (int i = 0; i < sizeof(fpga_names)/sizeof(fpga_names[0]); i++) {
+        sprintf(buffer_index,"%d",i);
+        gtk_combo_box_text_append(GTK_COMBO_BOX_TEXT(combobox_board), buffer_index, fpga_names[i].name_combobox);
+    }
     gtk_combo_box_set_active(GTK_COMBO_BOX(combobox_board), -1);
 
     gtk_widget_set_size_request(GTK_WIDGET(combobox_board),200,12);
@@ -176,7 +158,7 @@ static void activate (GtkApplication *app, gpointer user_data) {
 
 int main (int argc, char **argv) {
     GtkApplication *app;
-    int status;    
+    int status;
 
     app = gtk_application_new("org.gtk.example",G_APPLICATION_FLAGS_NONE);
     g_signal_connect(app,"activate",G_CALLBACK(activate), NULL);
