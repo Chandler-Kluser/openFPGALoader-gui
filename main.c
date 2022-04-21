@@ -4,19 +4,18 @@
 #define WINDOW_MARGIN 10
 #define WIDGET_MARGIN 5
 
-char command_string[];
 const char program_name[15] = "openFPGALoader\0";
 const char space[2] = " \0";
 const char board_flag[3] = "-b\0";
 const char flash_flag[3] = "-f\0";
-g_autoptr(GFile) firmware_to_burn;
+g_autoptr(GFile) firmware_to_burn = NULL;
 
 typedef struct {
     int number;
     char name[10];
 } board_catalog;
 
-board_catalog fpga_names[3] ={
+board_catalog fpga_names[3] = {
     {.number = 0,
     .name = "tangnano1k"},
     {.number = 1,
@@ -34,26 +33,30 @@ static void call_program(GtkWidget *widget, gpointer data) {
     // openFPGALoader -b <nome_da_placa> -f <nome_do_arquivo>
     //
     // ========================================================
-    //
-    // TO DO: Implement a way to concatenate the main command string with the board selected on the GUI
-    strcat(command_string,program_name);
-    strcat(command_string,space);
-    strcat(command_string,board_flag);
-    strcat(command_string,space);
-    // strcpy(command_string,""); // clear the string
-    printf("%s",command_string);
-    printf("\n");
-    int status = system("lite-xl");
-    
+    char *path = g_file_get_path(firmware_to_burn);
+    char *buf = calloc(strlen(program_name) + strlen(space) + strlen(board_flag) + strlen(space) + strlen(fpga_names[2].name) + strlen(space) + strlen(flash_flag) + strlen(space) + strlen(path) + 1, sizeof(char));
+
+    strncpy(buf, program_name, strlen(program_name));
+    strncat(buf, space, strlen(space));
+    strncat(buf, board_flag, strlen(board_flag));
+    strncat(buf, space, strlen(space));
+    strncat(buf, fpga_names[2].name, strlen(fpga_names[2].name));
+    strncat(buf, space, strlen(space));
+    strncat(buf, flash_flag, strlen(flash_flag));
+    strncat(buf, space, strlen(space));
+    strncat(buf, path, strlen(path));
+
+    printf("buffer is: %s\n", buf);
+    int status = system(buf);
+    free(path);
+    free(buf);
 }
 
-static void on_save_response(GtkDialog *dialog,int response) {
+static void on_save_response(GtkDialog *dialog, int response) {
     if (response == GTK_RESPONSE_ACCEPT) {
         GtkFileChooser *chooser = GTK_FILE_CHOOSER(dialog);
         firmware_to_burn = gtk_file_chooser_get_file(chooser);
-        printf("File Path Updated to: ");
-        printf(g_file_get_path(firmware_to_burn));
-        printf("\n");
+        printf("File Path Updated to: %s\n",g_file_get_path(firmware_to_burn));
     }
     gtk_window_destroy(GTK_WINDOW(dialog));
 }
@@ -86,7 +89,7 @@ static void activate (GtkApplication *app, gpointer user_data) {
 
     grid = gtk_grid_new();
 
-    gtk_window_set_child(GTK_WINDOW (window), grid);
+    gtk_window_set_child(GTK_WINDOW(window), grid);
     gtk_widget_set_margin_start(grid,WINDOW_MARGIN);
     gtk_widget_set_margin_top(grid,WINDOW_MARGIN);
 
@@ -140,7 +143,7 @@ static void activate (GtkApplication *app, gpointer user_data) {
     gtk_widget_set_margin_end(text,WIDGET_MARGIN);
 
     button = gtk_button_new_with_label("Path");
-    g_signal_connect_swapped(button, "clicked", G_CALLBACK(call_dir_dialog), window);
+    g_signal_connect_swapped(button, "clicked", G_CALLBACK(call_dir_dialog), window); // para dialogs a window mãe é obrigatória como argumento
 
     gtk_widget_set_size_request(GTK_WIDGET(button),70,12);
 
@@ -150,14 +153,14 @@ static void activate (GtkApplication *app, gpointer user_data) {
     // ==================================================================================
 
     button = gtk_button_new_with_label("Flash");
-    g_signal_connect_swapped (button, "clicked", G_CALLBACK (call_program), window);
+    g_signal_connect_swapped(button, "clicked", G_CALLBACK(call_program), NULL);
 
     gtk_grid_attach (GTK_GRID (grid), button, 0, 3, 3, 1);
     gtk_widget_set_size_request(GTK_WIDGET(button),150,12);
     gtk_widget_set_margin_top(button,WIDGET_MARGIN);
     gtk_widget_set_margin_bottom(button,WINDOW_MARGIN);
     gtk_widget_set_margin_end(button,WINDOW_MARGIN);
-    gtk_widget_show (window);
+    gtk_widget_show(window);
 }
 
 int main (int argc, char **argv) {
