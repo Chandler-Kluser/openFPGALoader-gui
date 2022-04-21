@@ -9,6 +9,9 @@ const char space[2] = " \0";
 const char board_flag[3] = "-b\0";
 const char flash_flag[3] = "-f\0";
 g_autoptr(GFile) firmware_to_burn = NULL;
+GtkWidget *ddown;
+GtkWidget *text;
+GtkEntryBuffer *abuff;
 
 typedef struct {
     int number;
@@ -34,6 +37,9 @@ static void call_program(GtkWidget *widget, gpointer data) {
     //
     // ========================================================
     char *path = g_file_get_path(firmware_to_burn);
+    // TO DO: check box of flash/RAM to change openFPGALoader flash flash or not
+
+    if (gtk_combo_box_get_active_id(ddown)=='0') printf("sim"); else printf("não");
     char *buf = calloc(strlen(program_name) + strlen(space) + strlen(board_flag) + strlen(space) + strlen(fpga_names[2].name) + strlen(space) + strlen(flash_flag) + strlen(space) + strlen(path) + 1, sizeof(char));
 
     strncpy(buf, program_name, strlen(program_name));
@@ -57,12 +63,18 @@ static void on_save_response(GtkDialog *dialog, int response) {
         GtkFileChooser *chooser = GTK_FILE_CHOOSER(dialog);
         firmware_to_burn = gtk_file_chooser_get_file(chooser);
         printf("File Path Updated to: %s\n",g_file_get_path(firmware_to_burn));
+        update_entry_buffer();
     }
     gtk_window_destroy(GTK_WINDOW(dialog));
 }
 
-static void update_entry_buffer(GtkWindow *window){
+static void update_entry_buffer(){
     // TO DO: add function to update entry
+    char *path = g_file_get_path(firmware_to_burn);
+    free(abuff);
+    abuff = gtk_entry_buffer_new(path,-1);
+    gtk_entry_set_buffer(text,abuff);
+    gtk_text_buffer_set_text(abuff,path,-1);
 }
 
 static void call_dir_dialog(GtkWidget *widget, gpointer data) {
@@ -76,9 +88,6 @@ static void activate (GtkApplication *app, gpointer user_data) {
     GtkWidget *window;
     GtkWidget *grid;
     GtkWidget *label;
-    GtkWidget *text;
-    GtkEntryBuffer *abuff;
-    GtkWidget *ddown;
     GtkWidget *button;
 
     // ==================================================================================
@@ -153,7 +162,7 @@ static void activate (GtkApplication *app, gpointer user_data) {
     // ==================================================================================
 
     button = gtk_button_new_with_label("Flash");
-    g_signal_connect_swapped(button, "clicked", G_CALLBACK(call_program), NULL);
+    g_signal_connect_swapped(button, "clicked", G_CALLBACK(call_program), window);
 
     gtk_grid_attach (GTK_GRID (grid), button, 0, 3, 3, 1);
     gtk_widget_set_size_request(GTK_WIDGET(button),150,12);
