@@ -8,54 +8,61 @@ const char program_name[15] = "openFPGALoader\0";
 const char space[2] = " \0";
 const char board_flag[3] = "-b\0";
 const char flash_flag[3] = "-f\0";
+const char quotation_mark[2] = "\"\0";
 g_autoptr(GFile) firmware_to_burn = NULL;
-GtkWidget *ddown;
-GtkWidget *text;
+GtkWidget *combobox_board;
+GtkWidget *combobox_flash;
+GtkWidget *path_entry_text;
 GtkEntryBuffer *abuff;
 
 typedef struct {
-    int number;
-    char name[10];
+    char name_combobox[20];
+    char name[20];
 } board_catalog;
 
 board_catalog fpga_names[3] = {
-    {.number = 0,
-    .name = "tangnano1k"},
-    {.number = 1,
-    .name = "tangnano4k"},
-    {.number = 2,
-    .name = "tangnano9k"},
+    {.name_combobox = "Sipeed Tang Nano 1k\0",
+    .name = "tangnano1k\0"},
+    {.name_combobox = "Sipeed Tang Nano 4k\0",
+    .name = "tangnano4k\0"},
+    {.name_combobox = "Sipeed Tang Nano 9k\0",
+    .name = "tangnano9k\0"},
 };
 
 static void call_program(GtkWidget *widget, gpointer data) {
-    // ========================================================
-    //
-    // escrevendo na RAM
-    // openFPGALoader -b <nome_da_placa> <nome_do_arquivo>
-    // escrevendo na flash
-    // openFPGALoader -b <nome_da_placa> -f <nome_do_arquivo>
-    //
-    // ========================================================
     char *path = g_file_get_path(firmware_to_burn);
-    // TO DO: check box of flash/RAM to change openFPGALoader flash flash or not
-
-    if (gtk_combo_box_get_active_id(ddown)=='0') printf("sim"); else printf("não");
-    char *buf = calloc(strlen(program_name) + strlen(space) + strlen(board_flag) + strlen(space) + strlen(fpga_names[2].name) + strlen(space) + strlen(flash_flag) + strlen(space) + strlen(path) + 1, sizeof(char));
-
-    strncpy(buf, program_name, strlen(program_name));
-    strncat(buf, space, strlen(space));
-    strncat(buf, board_flag, strlen(board_flag));
-    strncat(buf, space, strlen(space));
-    strncat(buf, fpga_names[2].name, strlen(fpga_names[2].name));
-    strncat(buf, space, strlen(space));
-    strncat(buf, flash_flag, strlen(flash_flag));
-    strncat(buf, space, strlen(space));
-    strncat(buf, path, strlen(path));
-
-    printf("buffer is: %s\n", buf);
-    int status = system(buf);
+    char *buf;
+    if (gtk_combo_box_get_active(combobox_board)==-1) {
+        printf("No board choosen, pick a board to flash.\n");
+    }
+    else {
+        int board_index = gtk_combo_box_get_active(combobox_board);
+        if (gtk_combo_box_get_active(combobox_flash)==0) { // if flash is active
+            buf = calloc(strlen(program_name) + strlen(space) + strlen(board_flag) + strlen(space) + strlen(fpga_names[2].name) + strlen(space) + strlen(flash_flag) + strlen(space) + strlen(path) + 1, sizeof(char));
+            strncpy(buf, program_name, strlen(program_name));
+            strncat(buf, space, strlen(space));
+            strncat(buf, board_flag, strlen(board_flag));
+            strncat(buf, space, strlen(space));
+            strncat(buf, fpga_names[board_index].name, strlen(fpga_names[board_index].name));
+            strncat(buf, space, strlen(space));
+            strncat(buf, flash_flag, strlen(flash_flag));
+            strncat(buf, space, strlen(space));
+            strncat(buf, path, strlen(path));
+        } else { // if flash to SRAM is active
+            buf = calloc(strlen(program_name) + strlen(space) + strlen(board_flag) + strlen(space) + strlen(fpga_names[2].name) + strlen(space) + strlen(path) + 1, sizeof(char));
+            strncpy(buf, program_name, strlen(program_name));
+            strncat(buf, space, strlen(space));
+            strncat(buf, board_flag, strlen(board_flag));
+            strncat(buf, space, strlen(space));
+            strncat(buf, fpga_names[board_index].name, strlen(fpga_names[board_index].name));
+            strncat(buf, space, strlen(space));
+            strncat(buf, path, strlen(path));
+        }
+        printf("buffer is: %s\n", buf);
+        int status = system(buf);
+        free(buf);
+    }
     free(path);
-    free(buf);
 }
 
 static void on_save_response(GtkDialog *dialog, int response) {
@@ -63,18 +70,13 @@ static void on_save_response(GtkDialog *dialog, int response) {
         GtkFileChooser *chooser = GTK_FILE_CHOOSER(dialog);
         firmware_to_burn = gtk_file_chooser_get_file(chooser);
         printf("File Path Updated to: %s\n",g_file_get_path(firmware_to_burn));
-        update_entry_buffer();
+        char *path = g_file_get_path(firmware_to_burn);
+        free(abuff);
+        abuff = gtk_entry_buffer_new(path,-1);
+        gtk_entry_set_buffer(path_entry_text,abuff);
+        gtk_text_buffer_set_text(abuff,path,-1);
     }
     gtk_window_destroy(GTK_WINDOW(dialog));
-}
-
-static void update_entry_buffer(){
-    // TO DO: add function to update entry
-    char *path = g_file_get_path(firmware_to_burn);
-    free(abuff);
-    abuff = gtk_entry_buffer_new(path,-1);
-    gtk_entry_set_buffer(text,abuff);
-    gtk_text_buffer_set_text(abuff,path,-1);
 }
 
 static void call_dir_dialog(GtkWidget *widget, gpointer data) {
@@ -109,17 +111,17 @@ static void activate (GtkApplication *app, gpointer user_data) {
     gtk_label_set_xalign(GTK_LABEL(label),0);
     gtk_grid_attach(GTK_GRID (grid), label, 0, 0, 1, 1);
 
-    ddown = gtk_combo_box_text_new();
-    gtk_combo_box_text_append(GTK_COMBO_BOX_TEXT(ddown), NULL, "Sipeed Tang Nano 1k");
-    gtk_combo_box_text_append(GTK_COMBO_BOX_TEXT(ddown), NULL, "Sipeed Tang Nano 4k");
-    gtk_combo_box_text_append(GTK_COMBO_BOX_TEXT(ddown), NULL, "Sipeed Tang Nano 9k");
-    gtk_combo_box_set_active(GTK_COMBO_BOX(ddown), -1);
+    combobox_board = gtk_combo_box_text_new();
+    gtk_combo_box_text_append(GTK_COMBO_BOX_TEXT(combobox_board), "0", fpga_names[0].name_combobox);
+    gtk_combo_box_text_append(GTK_COMBO_BOX_TEXT(combobox_board), "1", fpga_names[1].name_combobox);
+    gtk_combo_box_text_append(GTK_COMBO_BOX_TEXT(combobox_board), "2", fpga_names[2].name_combobox);
+    gtk_combo_box_set_active(GTK_COMBO_BOX(combobox_board), -1);
 
-    gtk_widget_set_size_request(GTK_WIDGET(ddown),200,12);
+    gtk_widget_set_size_request(GTK_WIDGET(combobox_board),200,12);
 
-    gtk_grid_attach(GTK_GRID(grid), ddown, 1, 0, 2, 1);
-    gtk_widget_set_margin_end(ddown,WINDOW_MARGIN);
-    gtk_widget_set_margin_bottom(ddown,WIDGET_MARGIN);
+    gtk_grid_attach(GTK_GRID(grid), combobox_board, 1, 0, 2, 1);
+    gtk_widget_set_margin_end(combobox_board,WINDOW_MARGIN);
+    gtk_widget_set_margin_bottom(combobox_board,WIDGET_MARGIN);
 
     // ==================================================================================
 
@@ -128,16 +130,16 @@ static void activate (GtkApplication *app, gpointer user_data) {
     gtk_label_set_xalign(GTK_LABEL(label),0);
     gtk_grid_attach(GTK_GRID (grid), label, 0, 1, 1, 1);
 
-    ddown = gtk_combo_box_text_new();
-    gtk_combo_box_text_append(GTK_COMBO_BOX_TEXT(ddown), NULL, "Flash Memory");
-    gtk_combo_box_text_append(GTK_COMBO_BOX_TEXT(ddown), NULL, "SRAM");
-    gtk_combo_box_set_active(GTK_COMBO_BOX(ddown), 0);
+    combobox_flash = gtk_combo_box_text_new();
+    gtk_combo_box_text_append(GTK_COMBO_BOX_TEXT(combobox_flash), "0", "Flash Memory");
+    gtk_combo_box_text_append(GTK_COMBO_BOX_TEXT(combobox_flash), "1", "SRAM");
+    gtk_combo_box_set_active(GTK_COMBO_BOX(combobox_flash), 0);
 
-    gtk_widget_set_size_request(GTK_WIDGET(ddown),200,12);
+    gtk_widget_set_size_request(GTK_WIDGET(combobox_flash),200,12);
 
-    gtk_grid_attach(GTK_GRID(grid), ddown, 1, 1, 2, 1);
-    gtk_widget_set_margin_end(ddown,WINDOW_MARGIN);
-    gtk_widget_set_margin_bottom(ddown,WIDGET_MARGIN);
+    gtk_grid_attach(GTK_GRID(grid), combobox_flash, 1, 1, 2, 1);
+    gtk_widget_set_margin_end(combobox_flash,WINDOW_MARGIN);
+    gtk_widget_set_margin_bottom(combobox_flash,WIDGET_MARGIN);
 
     // ==================================================================================
 
@@ -146,10 +148,10 @@ static void activate (GtkApplication *app, gpointer user_data) {
     gtk_label_set_xalign(GTK_LABEL(label),0);
     gtk_grid_attach(GTK_GRID (grid), label, 0, 2, 1, 1);
 
-    text = gtk_entry_new();
-    gtk_grid_attach(GTK_GRID (grid), text, 1, 2, 1, 1);
-    gtk_widget_set_size_request(GTK_WIDGET(text),200,12);
-    gtk_widget_set_margin_end(text,WIDGET_MARGIN);
+    path_entry_text = gtk_entry_new();
+    gtk_grid_attach(GTK_GRID (grid), path_entry_text, 1, 2, 1, 1);
+    gtk_widget_set_size_request(GTK_WIDGET(path_entry_text),200,12);
+    gtk_widget_set_margin_end(path_entry_text,WIDGET_MARGIN);
 
     button = gtk_button_new_with_label("Path");
     g_signal_connect_swapped(button, "clicked", G_CALLBACK(call_dir_dialog), window); // para dialogs a window mãe é obrigatória como argumento
