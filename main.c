@@ -47,6 +47,7 @@ static void call_program(GtkWidget *widget, gpointer data) {
         }
         printf("buffer is: %s\n", buf);
         int status = system(buf);
+        free(buf);
     }
 }
 
@@ -79,7 +80,6 @@ static void activate (GtkApplication *app, gpointer user_data) {
     gtk_window_set_resizable (GTK_WINDOW(window),0);
 
     grid = gtk_grid_new();
-
     gtk_window_set_child(GTK_WINDOW(window), grid);
     gtk_widget_set_margin_start(grid,WINDOW_MARGIN);
     gtk_widget_set_margin_top(grid,WINDOW_MARGIN);
@@ -87,7 +87,6 @@ static void activate (GtkApplication *app, gpointer user_data) {
     // ==================================================================================
 
     label = gtk_label_new ("FPGA Model: ");
-
     gtk_label_set_xalign(GTK_LABEL(label),0);
     gtk_grid_attach(GTK_GRID (grid), label, 0, 0, 1, 1);
 
@@ -98,9 +97,7 @@ static void activate (GtkApplication *app, gpointer user_data) {
         gtk_combo_box_text_append(GTK_COMBO_BOX_TEXT(combobox_board), buffer_index, fpga_names[i].name_combobox);
     }
     gtk_combo_box_set_active(GTK_COMBO_BOX(combobox_board), -1);
-
     gtk_widget_set_size_request(GTK_WIDGET(combobox_board),200,12);
-
     gtk_grid_attach(GTK_GRID(grid), combobox_board, 1, 0, 2, 1);
     gtk_widget_set_margin_end(combobox_board,WINDOW_MARGIN);
     gtk_widget_set_margin_bottom(combobox_board,WIDGET_MARGIN);
@@ -108,7 +105,6 @@ static void activate (GtkApplication *app, gpointer user_data) {
     // ==================================================================================
 
     label = gtk_label_new ("Program Mode: ");
-
     gtk_label_set_xalign(GTK_LABEL(label),0);
     gtk_grid_attach(GTK_GRID (grid), label, 0, 1, 1, 1);
 
@@ -116,9 +112,7 @@ static void activate (GtkApplication *app, gpointer user_data) {
     gtk_combo_box_text_append(GTK_COMBO_BOX_TEXT(combobox_flash), "0", "Flash Memory");
     gtk_combo_box_text_append(GTK_COMBO_BOX_TEXT(combobox_flash), "1", "SRAM");
     gtk_combo_box_set_active(GTK_COMBO_BOX(combobox_flash), 0);
-
     gtk_widget_set_size_request(GTK_WIDGET(combobox_flash),200,12);
-
     gtk_grid_attach(GTK_GRID(grid), combobox_flash, 1, 1, 2, 1);
     gtk_widget_set_margin_end(combobox_flash,WINDOW_MARGIN);
     gtk_widget_set_margin_bottom(combobox_flash,WIDGET_MARGIN);
@@ -126,7 +120,6 @@ static void activate (GtkApplication *app, gpointer user_data) {
     // ==================================================================================
 
     label = gtk_label_new("Path to File: ");
-
     gtk_label_set_xalign(GTK_LABEL(label),0);
     gtk_grid_attach(GTK_GRID (grid), label, 0, 2, 1, 1);
 
@@ -137,9 +130,7 @@ static void activate (GtkApplication *app, gpointer user_data) {
 
     button = gtk_button_new_with_label("Path");
     g_signal_connect_swapped(button, "clicked", G_CALLBACK(call_dir_dialog), window); // para dialogs a window mãe é obrigatória como argumento
-
     gtk_widget_set_size_request(GTK_WIDGET(button),70,12);
-
     gtk_grid_attach(GTK_GRID(grid), button, 2, 2, 1, 1);
     gtk_widget_set_margin_end(button,WINDOW_MARGIN);
 
@@ -147,7 +138,6 @@ static void activate (GtkApplication *app, gpointer user_data) {
 
     button = gtk_button_new_with_label("Flash");
     g_signal_connect_swapped(button, "clicked", G_CALLBACK(call_program), window);
-
     gtk_grid_attach (GTK_GRID (grid), button, 0, 3, 3, 1);
     gtk_widget_set_size_request(GTK_WIDGET(button),150,12);
     gtk_widget_set_margin_top(button,WIDGET_MARGIN);
