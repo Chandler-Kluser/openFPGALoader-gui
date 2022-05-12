@@ -1,9 +1,9 @@
-#include <gtk/gtk.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <gtk/gtk.h>
 #include <boards.h>
 #include <texts.h>
-#include <stdio.h>
 #define WINDOW_MARGIN 10
 #define WIDGET_MARGIN 5
 
@@ -12,7 +12,7 @@ GtkWidget *combobox_board;
 GtkWidget *combobox_flash;
 GtkWidget *path_entry_text;
 
-static void call_program(GtkWidget *widget, gpointer data) {
+static char* update_buffer(GtkWidget *widget, gpointer data) {
     char *buf;
     path_name = gtk_entry_buffer_get_text(gtk_entry_get_buffer(path_entry_text));
     if (gtk_combo_box_get_active(combobox_board)==-1) {
@@ -46,9 +46,14 @@ static void call_program(GtkWidget *widget, gpointer data) {
             strncat(buf, quotation_mark, strlen(quotation_mark));
         }
         printf("buffer is: %s\n", buf);
-        int status = system(buf);
-        free(buf);
+        return *buf;
     }
+}
+
+static void call_program(GtkWidget *widget, gpointer data) {
+    char *buf = update_buffer(*widget,data);
+    int status = system(buf);
+    free(buf);
 }
 
 static void on_save_response(GtkDialog *dialog, int response) {
