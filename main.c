@@ -51,7 +51,7 @@ static char* update_buffer(GtkWidget *widget, gpointer data) {
 }
 
 static void call_program(GtkWidget *widget, gpointer data) {
-    char *buf = update_buffer(*widget,data);
+    char *buf = update_buffer(widget,data);
     int status = system(buf);
     free(buf);
 }
@@ -76,6 +76,7 @@ static void activate (GtkApplication *app, gpointer user_data) {
     GtkWidget *window;
     GtkWidget *grid;
     GtkWidget *label;
+    GtkWidget *buffer_label;
     GtkWidget *button;
 
     // ==================================================================================
@@ -141,9 +142,18 @@ static void activate (GtkApplication *app, gpointer user_data) {
 
     // ==================================================================================
 
+    buffer_label = gtk_label_new("openFPGALoader");
+    gtk_label_set_xalign(GTK_LABEL(buffer_label),0);
+    gtk_grid_attach(GTK_GRID (grid), buffer_label, 0, 3, 3, 1);
+    gtk_widget_set_margin_end(buffer_label,WINDOW_MARGIN);
+    gtk_widget_set_margin_top(buffer_label,WIDGET_MARGIN);
+    gtk_widget_set_margin_bottom(buffer_label,WIDGET_MARGIN);
+
+    // ==================================================================================
+
     button = gtk_button_new_with_label("Flash");
     g_signal_connect_swapped(button, "clicked", G_CALLBACK(call_program), window);
-    gtk_grid_attach (GTK_GRID (grid), button, 0, 3, 3, 1);
+    gtk_grid_attach (GTK_GRID (grid), button, 0, 4, 3, 1);
     gtk_widget_set_size_request(GTK_WIDGET(button),150,12);
     gtk_widget_set_margin_top(button,WIDGET_MARGIN);
     gtk_widget_set_margin_bottom(button,WINDOW_MARGIN);
