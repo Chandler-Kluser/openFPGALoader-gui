@@ -5,7 +5,7 @@ A small [gtk4](https://www.gtk.org/) GUI to flash your FPGA projects
 </p>
 
 ## Building
-- Make sure you have `gcc`, `make`, `glib-2.0`, and `gtk4` in your system
+- Make sure you have `gcc`, `make`, `glib-2.0`, `pkg-config` and `gtk4` in your system
 - Install [openFPGALoader](https://github.com/trabucayre/openFPGALoader) and have it available on your user `$PATH` variable
 - Download this repository
 ```
