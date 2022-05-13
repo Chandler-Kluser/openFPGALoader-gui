@@ -4,6 +4,7 @@
 #include <gtk/gtk.h>
 #include <boards.h>
 #include <texts.h>
+#define WINDOW_WIDTH 600
 #define WINDOW_MARGIN 10
 #define WIDGET_MARGIN 5
 
@@ -46,8 +47,8 @@ static char* update_buffer(GtkWidget *widget, gpointer data) {
             strncat(buf, quotation_mark, strlen(quotation_mark));
         }
         printf("buffer is: %s\n", buf);
-        return *buf;
     }
+    return *buf;
 }
 
 static void call_program(GtkWidget *widget, gpointer data) {
@@ -61,6 +62,10 @@ static void on_save_response(GtkDialog *dialog, int response) {
         GtkFileChooser *chooser = GTK_FILE_CHOOSER(dialog);
         path_name = g_file_get_path(gtk_file_chooser_get_file(chooser));
         gtk_entry_buffer_set_text(gtk_entry_get_buffer(path_entry_text),path_name,-1);
+        // TO DO: UPDATE THE PREVIEW ENTRY WHEN SETTING NEW PATH TO FILE
+        // GtkWidget widget = gtk_dialog_get_widget_for_response(dialog,)
+        // char *buf = update_buffer(widget,data);
+        // gtk_entry_buffer_set_text(buf)
     }
     gtk_window_destroy(GTK_WINDOW(dialog));
 }
@@ -76,7 +81,9 @@ static void activate (GtkApplication *app, gpointer user_data) {
     GtkWidget *window;
     GtkWidget *grid;
     GtkWidget *label;
-    GtkWidget *buffer_label;
+    GtkWidget *buffer_entry;
+    path_name = "openFPGALoader";
+    GtkEntryBuffer* buffer_entry_text = gtk_entry_buffer_new(path_name,strlen(path_name));
     GtkWidget *button;
 
     // ==================================================================================
@@ -94,7 +101,7 @@ static void activate (GtkApplication *app, gpointer user_data) {
 
     label = gtk_label_new ("FPGA Model: ");
     gtk_label_set_xalign(GTK_LABEL(label),0);
-    gtk_grid_attach(GTK_GRID (grid), label, 0, 0, 1, 1);
+    gtk_grid_attach(GTK_GRID (grid), label, 0, 0, 1, 1);    
 
     combobox_board = gtk_combo_box_text_new();
     char buffer_index[200];
@@ -142,18 +149,20 @@ static void activate (GtkApplication *app, gpointer user_data) {
 
     // ==================================================================================
 
-    buffer_label = gtk_label_new("openFPGALoader");
-    gtk_label_set_xalign(GTK_LABEL(buffer_label),0);
-    gtk_grid_attach(GTK_GRID (grid), buffer_label, 0, 3, 3, 1);
-    gtk_widget_set_margin_end(buffer_label,WINDOW_MARGIN);
-    gtk_widget_set_margin_top(buffer_label,WIDGET_MARGIN);
-    gtk_widget_set_margin_bottom(buffer_label,WIDGET_MARGIN);
+    buffer_entry = gtk_entry_new();
+    gtk_entry_set_buffer(buffer_entry,buffer_entry_text);
+    gtk_label_set_xalign(GTK_LABEL(buffer_entry),0);
+    gtk_label_set_yalign(GTK_LABEL(buffer_entry),0);
+    gtk_grid_attach(GTK_GRID (grid), buffer_entry, 0, 3, 3, 1);
+    gtk_widget_set_size_request(buffer_entry,WINDOW_WIDTH,12);
+    gtk_widget_set_margin_end(buffer_entry,WINDOW_MARGIN);
+    gtk_widget_set_margin_top(buffer_entry,WIDGET_MARGIN);
 
     // ==================================================================================
 
     button = gtk_button_new_with_label("Flash");
     g_signal_connect_swapped(button, "clicked", G_CALLBACK(call_program), window);
-    gtk_grid_attach (GTK_GRID (grid), button, 0, 4, 3, 1);
+    gtk_grid_attach(GTK_GRID (grid), button, 0, 4, 3, 1);
     gtk_widget_set_size_request(GTK_WIDGET(button),150,12);
     gtk_widget_set_margin_top(button,WIDGET_MARGIN);
     gtk_widget_set_margin_bottom(button,WINDOW_MARGIN);
