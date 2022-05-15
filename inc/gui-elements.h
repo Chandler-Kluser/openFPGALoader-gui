@@ -1,5 +1,5 @@
-#ifndef MAIN_H
-#define MAIN_H
+#ifndef GUIELEMENTS_H
+#define GUIELEMENTS_H
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -10,9 +10,9 @@
 #define WINDOW_MARGIN 10
 #define WIDGET_MARGIN 5
 
-// extern to not cause trouble to gnu linker
-char *path_name;
-GtkWidget *combobox_board;
-GtkWidget *combobox_flash;
-GtkWidget *path_entry_text;
+extern char *path_name;
+extern GtkWidget *combobox_board;
+extern GtkWidget *combobox_flash;
+extern GtkWidget *path_entry_text;
+int sum1(int a);
 #endif

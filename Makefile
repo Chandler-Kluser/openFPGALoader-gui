@@ -1,13 +1,12 @@
 CC = gcc
-SRC_DIR = src/
-OBJ_DIR = obj/
-BIN_DIR = bin/
-
+SRC_DIR = src
+OBJ_DIR = obj
+BIN_DIR = bin
+# binary name
 BIN = openFPGALoader-gui
- 
-SRC = $(wildcard $(SRC_DIR)*.c)
-OBJ = $(SRC:$(SRC_DIR)%.c=$(OBJ_DIR)%.o)
-OBJ = $(patsubst $(SRC_DIR)%.c, $(OBJ_DIR)%.o, $(SRC))
+
+SRCS = $(wildcard $(SRC_DIR)/*.c)
+OBJS = $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(SRCS))
 
 # flag for debug tools
 CFLAGS += -g
@@ -21,12 +20,12 @@ LIBS += `pkg-config --libs glib-2.0`
 
 .PHONY: all clean
 
-all: $(BIN_DIR)$(BIN)
+all: $(BIN_DIR)/$(BIN)
 
-$(BIN_DIR)$(BIN): $(OBJ) | $(BIN_DIR)
+$(BIN_DIR)/$(BIN): $(OBJS) | $(BIN_DIR)
 	$(CC) $(CFLAGS) $^ -o $@ $(LIBS)
 
-$(OBJ_DIR)%.o: $(SRC_DIR)%.c | $(OBJ_DIR)
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 $(BIN_DIR) $(OBJ_DIR):
@@ -34,5 +33,3 @@ $(BIN_DIR) $(OBJ_DIR):
 
 clean:
 	$(RM) -rv $(BIN_DIR) $(OBJ_DIR)
-
--include $(OBJ:.o=.d)
