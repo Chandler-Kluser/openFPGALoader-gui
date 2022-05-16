@@ -20,5 +20,3 @@ make
 If you do not want to build it in your computer, you can also download a built program and run it.
 
 **ATTENTION**: Even using a binary release directly, you **must** have [openFPGALoader](https://github.com/trabucayre/openFPGALoader) installed and written in your `$PATH` variable
-## Observations
-I kept my [Visual Studio Code](https://code.visualstudio.com/) Setting files in the repository to help developers add more functionalities to the GUI

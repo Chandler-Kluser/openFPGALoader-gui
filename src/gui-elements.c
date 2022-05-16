@@ -1,51 +1,44 @@
 #include <gui-elements.h>
 
-char* update_buffer(GtkWidget *widget, gpointer data) {
-    char *buf;
+void update_buffer(void) {
     path_name = gtk_entry_buffer_get_text(gtk_entry_get_buffer(path_entry_text));
     if (gtk_combo_box_get_active(combobox_board)==-1) {
-        printf("No board choosen, pick a board to flash.\n");
-    }
-    else {
+        buffer = "No board choosen, pick a board to flash.\0";
+    } else {
         int board_index = gtk_combo_box_get_active(combobox_board);
         if (gtk_combo_box_get_active(combobox_flash)==0) { // if flash is active
-            buf = calloc(strlen(program_name) + strlen(space) + strlen(board_flag) + strlen(space) + strlen(fpga_names[2].name) + strlen(space) + strlen(flash_flag) + strlen(space) + strlen(quotation_mark) + strlen(path_name) + strlen(quotation_mark) + 1, sizeof(char));
-            strncpy(buf, program_name, strlen(program_name));
-            strncat(buf, space, strlen(space));
-            strncat(buf, board_flag, strlen(board_flag));
-            strncat(buf, space, strlen(space));
-            strncat(buf, fpga_names[board_index].name, strlen(fpga_names[board_index].name));
-            strncat(buf, space, strlen(space));
-            strncat(buf, flash_flag, strlen(flash_flag));
-            strncat(buf, space, strlen(space));
-            strncat(buf, quotation_mark, strlen(quotation_mark));
-            strncat(buf, path_name, strlen(path_name));
-            strncat(buf, quotation_mark, strlen(quotation_mark));
+            buffer = calloc(strlen(program_name) + strlen(space) + strlen(board_flag) + strlen(space) + strlen(fpga_names[2].name) + strlen(space) + strlen(flash_flag) + strlen(space) + strlen(quotation_mark) + strlen(path_name) + strlen(quotation_mark) + 1, sizeof(char));
+            strncpy(buffer, program_name, strlen(program_name));
+            strncat(buffer, space, strlen(space));
+            strncat(buffer, board_flag, strlen(board_flag));
+            strncat(buffer, space, strlen(space));
+            strncat(buffer, fpga_names[board_index].name, strlen(fpga_names[board_index].name));
+            strncat(buffer, space, strlen(space));
+            strncat(buffer, flash_flag, strlen(flash_flag));
+            strncat(buffer, space, strlen(space));
+            strncat(buffer, quotation_mark, strlen(quotation_mark));
+            strncat(buffer, path_name, strlen(path_name));
+            strncat(buffer, quotation_mark, strlen(quotation_mark));
         } else { // if flash to SRAM is active
-            buf = calloc(strlen(program_name) + strlen(space) + strlen(board_flag) + strlen(space) + strlen(fpga_names[2].name) + strlen(space) + strlen(quotation_mark) + strlen(path_name) + strlen(quotation_mark) + 1, sizeof(char));
-            strncpy(buf, program_name, strlen(program_name));
-            strncat(buf, space, strlen(space));
-            strncat(buf, board_flag, strlen(board_flag));
-            strncat(buf, space, strlen(space));
-            strncat(buf, fpga_names[board_index].name, strlen(fpga_names[board_index].name));
-            strncat(buf, space, strlen(space));
-            strncat(buf, quotation_mark, strlen(quotation_mark));
-            strncat(buf, path_name, strlen(path_name));
-            strncat(buf, quotation_mark, strlen(quotation_mark));
+            buffer = calloc(strlen(program_name) + strlen(space) + strlen(board_flag) + strlen(space) + strlen(fpga_names[2].name) + strlen(space) + strlen(quotation_mark) + strlen(path_name) + strlen(quotation_mark) + 1, sizeof(char));
+            strncpy(buffer, program_name, strlen(program_name));
+            strncat(buffer, space, strlen(space));
+            strncat(buffer, board_flag, strlen(board_flag));
+            strncat(buffer, space, strlen(space));
+            strncat(buffer, fpga_names[board_index].name, strlen(fpga_names[board_index].name));
+            strncat(buffer, space, strlen(space));
+            strncat(buffer, quotation_mark, strlen(quotation_mark));
+            strncat(buffer, path_name, strlen(path_name));
+            strncat(buffer, quotation_mark, strlen(quotation_mark));
         }
-        printf("buffer is: %s\n", buf);
     }
-    return *buf;
+    // updates the command preview entry
+    gtk_entry_buffer_set_text(buffer_entry_text,buffer,strlen(buffer));
 }
 
-void activate (GtkApplication *app, gpointer user_data) {
-    GtkWidget *window;
-    GtkWidget *grid;
-    GtkWidget *label;
-    GtkWidget *buffer_entry;
+void activate(GtkApplication *app, gpointer user_data) {
     path_name = "openFPGALoader";
-    GtkEntryBuffer* buffer_entry_text = gtk_entry_buffer_new(path_name,strlen(path_name));
-    GtkWidget *button;
+    buffer_entry_text = gtk_entry_buffer_new(path_name,strlen(path_name));
 
     // ==================================================================================
 
@@ -103,7 +96,8 @@ void activate (GtkApplication *app, gpointer user_data) {
     gtk_widget_set_margin_end(path_entry_text,WIDGET_MARGIN);
 
     button = gtk_button_new_with_label("Path");
-    g_signal_connect_swapped(button, "clicked", G_CALLBACK(call_dir_dialog), window); // para dialogs a window mãe é obrigatória como argumento
+    // para dialogs a window mãe é obrigatória como argumento
+    g_signal_connect_swapped(button, "clicked", G_CALLBACK(call_dir_dialog), window);
     gtk_widget_set_size_request(GTK_WIDGET(button),70,12);
     gtk_grid_attach(GTK_GRID(grid), button, 2, 2, 1, 1);
     gtk_widget_set_margin_end(button,WINDOW_MARGIN);

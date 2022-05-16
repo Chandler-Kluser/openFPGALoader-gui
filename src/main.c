@@ -1,9 +1,9 @@
 #include <main.h>
 
 void call_program(GtkWidget *widget, gpointer data) {
-    char *buf = update_buffer(widget,data);
-    int status = system(buf);
-    free(buf);
+    update_buffer();
+    // TO DO: use new method to get output of the openFPGALoader command
+    int status = system(buffer);
 }
 
 void on_save_response(GtkDialog *dialog, int response) {
@@ -11,10 +11,7 @@ void on_save_response(GtkDialog *dialog, int response) {
         GtkFileChooser *chooser = GTK_FILE_CHOOSER(dialog);
         path_name = g_file_get_path(gtk_file_chooser_get_file(chooser));
         gtk_entry_buffer_set_text(gtk_entry_get_buffer(path_entry_text),path_name,-1);
-        // TO DO: UPDATE THE PREVIEW ENTRY WHEN SETTING NEW PATH TO FILE
-        // GtkWidget widget = gtk_dialog_get_widget_for_response(dialog,)
-        // char *buf = update_buffer(widget,data);
-        // gtk_entry_buffer_set_text(buf)
+        update_buffer();
     }
     gtk_window_destroy(GTK_WINDOW(dialog));
 }
@@ -28,11 +25,9 @@ void call_dir_dialog(GtkWidget *widget, gpointer data) {
 
 int main (int argc, char **argv) {
     int status;
-
     app = gtk_application_new("org.gtk.example",G_APPLICATION_FLAGS_NONE);
     g_signal_connect(app,"activate",G_CALLBACK(activate), NULL);
     status = g_application_run(G_APPLICATION(app), argc, argv);
     g_object_unref(app);
-
     return status;
 }
