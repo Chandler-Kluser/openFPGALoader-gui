@@ -37,7 +37,7 @@ void update_buffer(void) {
 }
 
 void activate(GtkApplication *app, gpointer user_data) {
-    path_name = "openFPGALoader";
+    path_name = program_name;
     buffer_entry_text = gtk_entry_buffer_new(path_name,strlen(path_name));
 
     // ==================================================================================
@@ -69,6 +69,9 @@ void activate(GtkApplication *app, gpointer user_data) {
     gtk_widget_set_margin_end(combobox_board,WINDOW_MARGIN);
     gtk_widget_set_margin_bottom(combobox_board,WIDGET_MARGIN);
 
+    // event handler:
+    g_signal_connect(combobox_board,"changed",G_CALLBACK(update_buffer), NULL);
+
     // ==================================================================================
 
     label = gtk_label_new ("Program Mode: ");
@@ -84,6 +87,9 @@ void activate(GtkApplication *app, gpointer user_data) {
     gtk_widget_set_margin_end(combobox_flash,WINDOW_MARGIN);
     gtk_widget_set_margin_bottom(combobox_flash,WIDGET_MARGIN);
 
+    // event handler:
+    g_signal_connect(combobox_flash,"changed",G_CALLBACK(update_buffer), NULL);
+
     // ==================================================================================
 
     label = gtk_label_new("Path to File: ");
@@ -94,6 +100,9 @@ void activate(GtkApplication *app, gpointer user_data) {
     gtk_grid_attach(GTK_GRID (grid), path_entry_text, 1, 2, 1, 1);
     gtk_widget_set_size_request(GTK_WIDGET(path_entry_text),200,12);
     gtk_widget_set_margin_end(path_entry_text,WIDGET_MARGIN);
+
+    // event handler:
+    g_signal_connect(path_entry_text,"changed",G_CALLBACK(update_buffer), NULL);
 
     button = gtk_button_new_with_label("Path");
     // para dialogs a window mãe é obrigatória como argumento
