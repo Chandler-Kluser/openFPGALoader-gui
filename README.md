@@ -10,7 +10,7 @@ A small [gtk4](https://www.gtk.org/) GUI to flash your FPGA projects
 ### Debian based systems
 ```
 sudo apt update
-sudo apt install gcc make glib-2.0 pkg-config gtk4
+sudo apt install gcc make libglib2.0-0 pkg-config libgtk-4-dev
 ```
 ### Arch based systems
 ```
