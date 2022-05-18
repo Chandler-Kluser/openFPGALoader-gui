@@ -9,7 +9,7 @@ A small [gtk4](https://www.gtk.org/) GUI to flash your FPGA projects
 - Make sure you have `gcc`, `make`, `glib-2.0`, `pkg-config`, `vte-2.91-gtk4` and `gtk4` in your system, for Debian based systems:
 ```
 sudo apt update
-sudo apt install gcc make glib-2.0 pkg-config gtk4
+sudo apt install gcc make libglib2.0-0 pkg-config libgtk-4-dev
 ```
 - Download this repository, go to repository root folder and run `make` in your shell
 ```
