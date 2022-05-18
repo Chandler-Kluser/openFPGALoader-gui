@@ -13,10 +13,8 @@ CFLAGS += -g
 # including inc folder
 CFLAGS += -Iinc
 # including packages and libs
-CFLAGS += `pkg-config --cflags glib-2.0`
-CFLAGS += `pkg-config --cflags gtk4`
-LIBS += `pkg-config --libs gtk4`
-LIBS += `pkg-config --libs glib-2.0`
+CFLAGS += `pkg-config --cflags gtk4 glib-2.0 vte-2.91-gtk4`
+LIBS += `pkg-config --libs gtk4 glib-2.0 vte-2.91-gtk4`
 
 .PHONY: all clean
 
