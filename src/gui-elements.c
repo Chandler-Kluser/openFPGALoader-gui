@@ -1,7 +1,5 @@
 #include <gui-elements.h>
 
-// char *argv_test[] = {"openFPGALoader\0", "--help\0", NULL};
-
 void update_buffer(void) {
     path_name = calloc(strlen(gtk_entry_buffer_get_text(gtk_entry_get_buffer(GTK_ENTRY(path_entry_text))))+1,sizeof(char));
     strcpy(path_name,gtk_entry_buffer_get_text(gtk_entry_get_buffer(GTK_ENTRY(path_entry_text))));
@@ -158,12 +156,14 @@ void activate(GtkApplication *app, gpointer user_data) {
     gtk_widget_show(window);
 }
 
+// just calls the buffer command with the system shell, no vte integration
 void call_program_shell(void) {
     update_buffer();
     // old school way of running program
     int status = system(buffer);
 }
 
+// reset vte terminal, print buffer command in its first line, then run command inside VTE (not working properly)
 void run_button(void) {
     vte_terminal_reset(VTE_TERMINAL(terminal),TRUE,TRUE);
     vte_terminal_set_xalign(VTE_TERMINAL(terminal),VTE_ALIGN_START);
@@ -171,10 +171,11 @@ void run_button(void) {
     strcpy(new,buffer);
     strcat(new,"\n");
     vte_terminal_feed(VTE_TERMINAL(terminal),new,-1);
-    free(new);
+    // free(new);
     get_argv_and_run_command();
 }
 
+// assemble **argv from buffer string (char pointer) and call VTE terminal to execute command (not working - UTF8 issues)
 void get_argv_and_run_command(void) {
     char *p0,*p1,*p2,*p3,*p4;
     if (gtk_combo_box_get_active(GTK_COMBO_BOX(combobox_board))==-1) return NULL;
