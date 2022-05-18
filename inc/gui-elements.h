@@ -16,10 +16,12 @@ extern void call_dir_dialog(GtkWidget *widget, gpointer data);
 extern void on_save_response(GtkDialog *dialog, int response);
 extern void call_program(GtkWidget *widget, gpointer data);
 
-char *argv_test[];
 GtkEntryBuffer *buffer_entry_text;
 GtkWidget *window,*grid,*label,*button,*buffer_entry,*terminal,*scrollview1;
 void update_buffer(void);
 void activate (GtkApplication *app, gpointer user_data);
 void run_button(void);
+void get_argv_and_run_command(void);
+void call_program_shell(void);
 #endif
+

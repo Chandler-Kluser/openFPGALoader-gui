@@ -7,6 +7,7 @@
 #define MIN_BUTTON_HEIGHT 12
 #define WINDOW_MARGIN 10
 #define WIDGET_MARGIN 5
+#define NO_BOARD_STR "No board choosen, pick a board to flash.\0"
 extern const char program_name[15];
 extern const char space[2];
 extern const char board_flag[3];

@@ -2,7 +2,9 @@
 
 void call_program(GtkWidget *widget, gpointer data) {
     update_buffer();
-    int status = system(buffer);
+    // old school way of running program
+    // int status = system(buffer);
+    printf("Command:\n%s\n",buffer);
     run_button();
 }
 
